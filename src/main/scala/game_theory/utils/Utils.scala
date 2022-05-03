@@ -792,6 +792,208 @@ object Utils {
         }
     }
 
+    // -------------------------------------------------------------------------------------------------------------
+    // * Кооперативные игры
+    // -------------------------------------------------------------------------------------------------------------
+
+    private def factorial(number: Int): Int =
+        (2 to number).foldLeft(1) { case (gamerNumber, numberFactorial) => numberFactorial * gamerNumber }
+
+    def computeShapleyVector(gamersCount: Int, characteristicFunction: Map[Coalition, Double]): Map[Int, Double] = {
+        val factor = 1.0 / factorial(gamersCount)
+        (1 to gamersCount).foldLeft(Map.empty[Int, Double]) { case (shapleyVector, gamerId) =>
+            val characteristicFunctionForCoalitionsWithGamerId = characteristicFunction.filter(_._1.contains(gamerId))
+            val shapleyComponent = factor * characteristicFunctionForCoalitionsWithGamerId.map { characteristicFuncForCoalsWithGamerId =>
+                val coalitionSize = characteristicFuncForCoalsWithGamerId._1.length
+                val coalitionBenefit = characteristicFuncForCoalsWithGamerId._2
+                val coalitionBenefitWithoutGamerId = characteristicFunction(characteristicFuncForCoalsWithGamerId._1.filter(_ != gamerId))
+                factorial(coalitionSize - 1) * factorial(gamersCount - coalitionSize) * (coalitionBenefit - coalitionBenefitWithoutGamerId)
+            }.sum
+            shapleyVector + (gamerId -> shapleyComponent)
+        }
+    }
+
+    def isIndividualRationalizationConditionMet(
+                                                 shapleyVector: Map[Int, Double],
+                                                 characteristicFunction: Map[Coalition, Double]
+                                               ): (Boolean, List[Int]) = {
+        shapleyVector.foldLeft((true, List.empty[Int])) {
+            case ((individualRationalizationConditionIsTrue, badGamerIds), (gamerId, shapleyComponent)) =>
+                val newIndividualRationalizationConditionIsTrue = shapleyComponent >= characteristicFunction(List(gamerId))
+                (
+                  individualRationalizationConditionIsTrue && newIndividualRationalizationConditionIsTrue,
+                  if (newIndividualRationalizationConditionIsTrue) badGamerIds else badGamerIds :+ gamerId
+                )
+        }
+    }
+
+    private val groupRationalizationZeroEpsilon = 0.1
+
+    def isGroupRationalizationConditionMet(
+                                            gamersCount: Int,
+                                            shapleyVector: Map[Int, Double],
+                                            characteristicFunction: Map[Coalition, Double]
+                                          ): Boolean = {
+        val shapleyComponentsSum = shapleyVector.values.sum
+        val coalitionsAllBenefit = characteristicFunction.find(_._1.toSet == (1 to gamersCount).toSet).map(_._2).getOrElse(0.0)
+        shapleyComponentsSum - coalitionsAllBenefit <= groupRationalizationZeroEpsilon
+    }
+
+    private def checkCooperativeGameOn(
+                                        characteristicFunction: Map[Coalition, Double],
+                                        coalitionsPairsFilter: List[Coalition] => Boolean,
+                                        coalitionsPairsCheckFunction: List[Coalition] => (Boolean, List[Coalition], List[Coalition])
+                                      ): (Boolean, List[List[Coalition]], List[List[Coalition]]) = {
+        val coalitions = characteristicFunction.keys.toList.filter(_.nonEmpty)
+        val coalitionsPairs = coalitions.combinations(2).filter(coalitionsPairsFilter).toList
+        coalitionsPairs.foldLeft((true, List.empty[List[Coalition]], List.empty[List[Coalition]])) {
+            case ((checkResult, goodCoalitionsPairs, badCoalitionsPairs), coalitionPair) =>
+                val (newCheckResult, newGoodCoalitionsPairs, newBadCoalitionsPairs) = coalitionsPairsCheckFunction(coalitionPair)
+                (
+                  checkResult && newCheckResult,
+                  if (newGoodCoalitionsPairs.nonEmpty) goodCoalitionsPairs :+ newGoodCoalitionsPairs else goodCoalitionsPairs,
+                  if (newBadCoalitionsPairs.nonEmpty) badCoalitionsPairs :+ newBadCoalitionsPairs else badCoalitionsPairs
+                )
+        }
+    }
+
+    def isSuperadditive(characteristicFunction: Map[Coalition, Double]): (Boolean, List[List[Coalition]], List[List[Coalition]]) =
+        checkCooperativeGameOn(
+            characteristicFunction,
+            coalitionsPairsFilter = (coalitionPair: List[Coalition]) => coalitionPair(0).intersect(coalitionPair(1)).isEmpty,
+            coalitionsPairsCheckFunction = (coalitionPair: List[Coalition]) => {
+                val List(coalitionFirst, coalitionSecond) = coalitionPair
+                val superadditive = characteristicFunction
+                  .find(_._1.toSet == (coalitionFirst ++ coalitionSecond).toSet)
+                  .exists(_._2 >= characteristicFunction(coalitionFirst) + characteristicFunction(coalitionSecond))
+                (superadditive, if (superadditive) coalitionPair else List(), if (superadditive) List() else coalitionPair)
+            }
+        )
+
+    def isConvex(characteristicFunction: Map[Coalition, Double]): (Boolean, List[List[Coalition]], List[List[Coalition]]) =
+        checkCooperativeGameOn(
+            characteristicFunction,
+            coalitionsPairsFilter = _ => true,
+            coalitionsPairsCheckFunction = (coalitionPair: List[Coalition]) => {
+                val List(coalitionFirst, coalitionSecond) = coalitionPair
+                val unionBenefit = characteristicFunction.find(_._1.toSet == (coalitionFirst ++ coalitionSecond).toSet).map(_._2).getOrElse(0.0)
+                val intersectBenefit = characteristicFunction.find(_._1.toSet == coalitionFirst.intersect(coalitionSecond).toSet).map(_._2).getOrElse(0.0)
+                val convex = unionBenefit + intersectBenefit >= characteristicFunction(coalitionFirst) + characteristicFunction(coalitionSecond)
+                (convex, if (convex) coalitionPair else List(), if (convex) List() else coalitionPair)
+            }
+        )
+
+    // -------------------------------------------------------------------------------------------------------------
+    // * Информационное противоборство
+    // -------------------------------------------------------------------------------------------------------------
+
+    private val maxInformationConfrontationIterationsCount = 1000
+
+    @tailrec
+    private def isTrustMatrixConvergedHandler(
+                                               trustMatricesDiffElements: Array[Double],
+                                               epsilon: Double,
+                                               converged: Boolean = true
+                                             ): Boolean = trustMatricesDiffElements match {
+        case Array() => converged
+        case _ if !converged => false
+        case _ => isTrustMatrixConvergedHandler(
+            trustMatricesDiffElements.tail,
+            epsilon,
+            trustMatricesDiffElements.head < epsilon
+        )
+    }
+
+    private def isTrustMatrixConverged(prevMatrix: Matrix, currMatrix: Matrix, epsilon: Double): Boolean =
+        isTrustMatrixConvergedHandler((currMatrix - prevMatrix).matrix.flatten, epsilon)
+
+    @tailrec
+    private def computeTrustMatrix(trustMatrix: Matrix, epsilon: Double, iterationsCount: Int = 1)
+                                  (previousTrustMatrix: Matrix = trustMatrix)
+                                  (currentTrustMatrix: Matrix = previousTrustMatrix * trustMatrix): Either[String, (Matrix, Int)] = {
+        if (isTrustMatrixConverged(previousTrustMatrix, currentTrustMatrix, epsilon)) {
+            Right((currentTrustMatrix, iterationsCount))
+        } else if (iterationsCount >= maxInformationConfrontationIterationsCount) {
+            Left("Матрица не сходится")
+        } else {
+            computeTrustMatrix(trustMatrix, epsilon, iterationsCount + 1)(currentTrustMatrix)(currentTrustMatrix * trustMatrix)
+        }
+    }
+
+    def computeInformationConfrontation(
+                                         trustMatrix: Matrix,
+                                         epsilon: Double,
+                                         agentsMinOpinionInitial: Int,
+                                         agentsMaxOpinionInitial: Int,
+                                         agentsInfluenceMinOpinionInitial: Int,
+                                         agentsInfluenceMaxOpinionInitial: Int,
+                                         firstGamerAgentsInfluenceCount: Int,
+                                         secondGamerAgentsInfluenceCount: Int
+                                       ): Either[String, MSA] = {
+        computeTrustMatrix(trustMatrix, epsilon)()() map { case (computeTrustMatrix, iterationsCount) =>
+            val agentsOpinionsInitialWithoutInfluence = (0 until trustMatrix.getMatrixRowsCount).map { _ =>
+                agentsMinOpinionInitial + scala.util.Random.nextInt((agentsMaxOpinionInitial - agentsMinOpinionInitial) + 1)
+            }.toList
+
+            println(agentsOpinionsInitialWithoutInfluence.mkString(","))
+
+            val agentsOpinionsResultWithoutInfluence =
+                (computeTrustMatrix * Matrix(Array(agentsOpinionsInitialWithoutInfluence.map(_.toDouble).toArray)).transpose).transpose.matrix.head
+
+            var availableInfluencersIndices = (0 until trustMatrix.getMatrixRowsCount).toList
+            val firstGamerAgentsInfluenceMinOpinionInitial = agentsInfluenceMinOpinionInitial
+            val firstGamerAgentsInfluenceMaxOpinionInitial = agentsInfluenceMaxOpinionInitial
+            val firstGamerOpinionInitial = firstGamerAgentsInfluenceMinOpinionInitial + scala.util.Random.nextInt((firstGamerAgentsInfluenceMaxOpinionInitial - firstGamerAgentsInfluenceMinOpinionInitial) + 1)
+            val firstGamerInfluencers = (0 until firstGamerAgentsInfluenceCount).map { _ =>
+                availableInfluencersIndices(scala.util.Random.nextInt(availableInfluencersIndices.length))
+            }.toList
+
+            availableInfluencersIndices = availableInfluencersIndices.filter(availableIndex => !firstGamerInfluencers.contains(availableIndex))
+            val secondGamerAgentsInfluenceMinOpinionInitial = if (agentsInfluenceMaxOpinionInitial == 0) agentsInfluenceMaxOpinionInitial else -agentsInfluenceMaxOpinionInitial
+            val secondGamerAgentsInfluenceMaxOpinionInitial = if (agentsInfluenceMinOpinionInitial == 0) agentsInfluenceMinOpinionInitial else -agentsInfluenceMinOpinionInitial
+            val secondGamerOpinionInitial = secondGamerAgentsInfluenceMinOpinionInitial + scala.util.Random.nextInt((secondGamerAgentsInfluenceMaxOpinionInitial - secondGamerAgentsInfluenceMinOpinionInitial) + 1)
+            val secondGamerInfluencers = (0 until secondGamerAgentsInfluenceCount).map { _ =>
+                availableInfluencersIndices(scala.util.Random.nextInt(availableInfluencersIndices.length))
+            }.toList
+
+            val agentsOpinionsInitialWithInfluence = (
+              firstGamerInfluencers.map(influencer => (influencer, firstGamerOpinionInitial)) ++
+                secondGamerInfluencers.map(influencer => (influencer, secondGamerOpinionInitial))
+              ).foldLeft(agentsOpinionsInitialWithoutInfluence) {
+                case (updatedAgentsOpinionsInitialWithoutInfluence, (influencer, opinionInitial)) =>
+                    updatedAgentsOpinionsInitialWithoutInfluence.updated(influencer, opinionInitial)
+            }
+
+            val agentsOpinionsResultWithInfluence =
+                (computeTrustMatrix * Matrix(Array(agentsOpinionsInitialWithInfluence.map(_.toDouble).toArray)).transpose).transpose.matrix.head
+
+            Map(
+                "computeTrustMatrix" -> computeTrustMatrix.matrix,
+                "agentsOpinionsInitial" -> Map(
+                    "withoutInfluence" -> agentsOpinionsInitialWithoutInfluence,
+                    "withInfluence" -> agentsOpinionsInitialWithInfluence
+                ),
+                "agentsOpinionsResult" -> Map(
+                    "withoutInfluence" -> agentsOpinionsResultWithoutInfluence,
+                    "withInfluence" -> agentsOpinionsResultWithInfluence
+                ),
+                "iterations" -> iterationsCount,
+                "firstGamer" -> Map(
+                    "influencers" -> firstGamerInfluencers,
+                    "opinionInitial" -> firstGamerOpinionInitial
+                ),
+                "secondGamer" -> Map(
+                    "influencers" -> secondGamerInfluencers,
+                    "opinionInitial" -> secondGamerOpinionInitial
+                ),
+                "winner" -> {
+                    if (agentsOpinionsResultWithInfluence.head >= firstGamerAgentsInfluenceMinOpinionInitial) "первый"
+                    else "второй"
+                }
+            )
+        }
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Методы работы с таблицами
     // -----------------------------------------------------------------------------------------------------------------

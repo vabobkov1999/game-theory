@@ -131,6 +131,20 @@
         Позиционные игры. Метод обратной индукции
     </button>
     <hr>
+    <h3>Лабораторная работа №5</h3>
+    <button id="lab5CooperativeGamesBtn" type="button" class="customButton" >
+        Рациональный дележ в кооперативных играх
+    </button>
+    <hr>
+    <h3>Лабораторная работа №6</h3>
+    <button id="lab6InformationConfrontationBtn" type="button" class="customButton" >
+        Информационное противоборство
+    </button>
+    <hr>
+    <button id="rk1Btn" type="button" class="customButton" >
+        Рубежный контроль №2
+    </button>
+    <hr>
 
     <!--Lab1 modal dialog-->
     <div class="modal fade" id="lab1InverseMatrixAndBrownRobinsonMethodsDialog" role="dialog" aria-hidden="true">
@@ -364,6 +378,161 @@
             </div>
         </div>
     </div>
+    <!--Lab5 modal dialog-->
+    <div class="modal fade" id="lab5CooperativeGamesDialog" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-xlg" style="width: 50%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h1 class="modal-title">Лабораторная работа №5</h1>
+                    <h4 class="modal-title">Рациональный дележ в кооперативных играх</h4>
+                </div>
+                <div class="modal-body">
+                    <h3>Цель работы</h3>
+                    <p>
+                        Изучить постановку кооперативной игры и найти оптимальное распределение выигрыша (дележ) между
+                        игроками путем вычисления компонент вектора Шепли.
+                    </p>
+                    <hr>
+                    <h3>Постановка задачи</h3>
+                    <p>
+                        Для заданной характеристической функции игры выполнить следующее:<br>
+                        1. Проверить кооперативную игру на супераддитивность и выпуклость. Если игра не супераддитивна,
+                        изменить характеристическую функцию таким образом, чтобы игра стала супераддитивной.<br>
+                        2. Составить программу вычисления компонент вектора Шепли и рассчитать его.<br>
+                        3. Проверить условия индивидуальной и групповой рационализации.
+                    </p>
+                    <hr>
+                    <h3>Ход работы</h3>
+                    <label>
+                        Количество игроков :
+                        <input id="cooperativeGamersCount" type="text" class="form-control">
+                        <button id="lab5Ok" type="button" class="btn btn-primary">OK</button>
+                        <br>
+                        Задайте характеристическую функцию :
+                        <div id="characteristicFunction"></div>
+                        <br>
+                        <button id="lab5Execute" type="button" class="btn btn-primary">Рассчитать</button>
+                    </label>
+                    <br>
+                    <div id="cooperativeGamesResult"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Lab6 modal dialog-->
+    <div class="modal fade" id="lab6InformationConfrontationDialog" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-xlg" style="width: 80%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h1>Лабораторная работа №6</h1>
+                    <h4 class="modal-title">Информационное противоборство</h4>
+                </div>
+                <div class="modal-body">
+                    <h3>Цель работы</h3>
+                    <p>Изучить теоретико-игровую модель информационного противоборства в социальных сетях.
+                        Промоделировать информационное управление в рамках игры и определить итоговое мнение агентов.</p>
+                    <hr>
+                    <h3>Постановка задачи</h3>
+                    <p>
+                        1. Для 10 агентов случайным образом сгенерировать стохастическую матрицу доверия.<br>
+                        2. Назначить всем агентам случайное начальное мнение из заданного отрезка числовой оси. Найти
+                        итоговое мнение агентов.<br>
+                        3. Случайным образом выбрать количество и номера (непересекающиеся) агентов влияния из общего
+                        числа агентов для первого и второго игроков. Остальным агентам (нейтральным) назначить случайные
+                        начальные мнения. Смоделировать информационное управление в рамках игры и определить итоговое
+                        мнение агентов.
+                    </p>
+                    <hr>
+                    <h3>Ход работы</h3>
+                    <label>Количество агентов :
+                        <select id="lab6GenTrustMatrixRowsCount" class="select matrixRowsCount" tableBodyId="lab6TrustMatrixBody"></select>
+                    </label>
+                    <br>
+                    <button id="lab6Generate" type="button" class="btn btn-primary">Сгенерировать</button>
+                    <br>
+                    <label for="genMatrixStrategy">Сгенерированная стохастическая матрица доверия :
+                        <table id="genTrustMatrix">
+                            <thead id="lab6TrustMatrixHead"/>
+                            <tbody id="lab6TrustMatrixBody" class="matrixStrategyBody"></tbody>
+                        </table>
+                    </label>
+                    <br>
+                    <label>Точность схождения матрицы :
+                        <input id="convergenceMatrixEpsilon" type="text" value="10^{-6}"/>
+                    </label>
+                    <br>
+                    <label>Диапазон начальных мнений агентов :
+                        [<input id="agentsMinOpinionInitial" type="number" min="0" value="1"/>, <input id="agentsMaxOpinionInitial" type="number" min="0" value="20"/>]
+                    </label>
+                    <br>
+                    <label>Диапазон начальных мнений агентов влияния первого игрока :
+                        [<input id="agentsInfluenceMinOpinionInitial" type="number" min="0" value="0"/>, <input id="agentsInfluenceMaxOpinionInitial" type="number" min="0" value="100"/>]
+                    </label>
+                    <br>
+                    <label>Число агентов влияния первого игрока :
+                        <input id="firstGamerAgentsInfluenceCount" type="number" min="1" value="2"/>
+                    </label>
+                    <br>
+                    <label>Число агентов влияния второго игрока :
+                        <input id="secondGamerAgentsInfluenceCount" type="number" min="1" value="2"/>
+                    </label>
+                    <br>
+                    <button id="lab6Execute" type="button" class="btn btn-primary">Рассчитать</button>
+                    <br>
+                    <div id="informationConfrontationResult"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--RK2 modal dialog-->
+    <div class="modal fade" id="rk1Dialog" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-xlg" style="width: 50%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h1 class="modal-title">Рубежный контроль №1</h1>
+                </div>
+                <div class="modal-body">
+                    <h3>Ход работы</h3>
+                    <label>Размерность матрицы стратегий :
+                        (<select id="rk1MatrixRowsCount" class="select matrixRowsCount" tableBodyId="rk1MatrixStrategyBody"></select>x<select id="rk1MatrixColumnsCount" class="select matrixColumnsCount" tableBodyId="rk1MatrixStrategyBody"></select>)
+                    </label>
+                    <br>
+                    <label for="rk1matrixStrategy">Матрица стратегий* :
+                        <table id="rk1matrixStrategy">
+                            <tbody id="rk1MatrixStrategyBody" class="matrixStrategyBody"></tbody>
+                        </table>
+                    </label>
+                    <br>
+                    <p>* Допустимо вводить следующие данные в ячейки таблицы: 1; -1; 01; -01; 0,1; -0,1; 0.1; -0.1; 1/2; -1/2; 1:2; -1:2; -1/-2; -1:-2</p>
+                    <button id="rk1Execute" type="button" class="btn btn-primary">Рассчитать</button>
+                    <br>
+                    <label>
+                        <form id="rk1ExecuteByFileForm" action="/game_theory/api/rk1/by_file/" method="post" enctype="multipart/form-data">
+                            <input id="rk1file" name="rk1file" type="file" class="form-control">
+                            <button id="rk1ExecuteByFile" type="submit" class="btn btn-success">
+                                Задать матрицу таблицей Excel и рассчитать
+                            </button>
+                        </form>
+                    </label>
+                    <h4><b>Монотонный итерационный метод</b></h4>
+                    <div id="rk1Result"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 </body>
 <script>
@@ -904,6 +1073,328 @@
                 }
             })
         })
+
+         // ---------------------------------------------------------------------------------------------------------
+        // Обработка кнопок в модальном окне лабораторной работы №5
+        // ---------------------------------------------------------------------------------------------------------
+
+        $("#lab5Ok").on("click", function () {
+            sendRequest('post', '/game_theory/api/lab5/generate_coalitions', JSON.stringify({"gamersCount": $("#cooperativeGamersCount").val()}), function(response) {
+                if (response.success) {
+                    var characteristicFunction = $("#characteristicFunction")
+                    characteristicFunction.html("")
+                    var coalitions = response.result.map(function (coalition) {
+                        if (isEmpty(coalition)) {
+                            return "v(∅)"
+                        } else {
+                            return "v({"+coalition.join(",")+"})"
+                        }
+                    })
+                    var defaultCharacteristicFunction = [0, 2, 3, 2, 4, 6, 5, 7, 6, 8, 8, 9, 11, 10, 12, 14]
+                    var i = 0
+                    coalitions.forEach(function (coalition) {
+                        characteristicFunction.append(coalition+": ")
+                        characteristicFunction.append($('<input class="coalitionCharacteristicFunction" coalition="'+coalition+'" value="'+defaultCharacteristicFunction[i]+'">'))
+                        characteristicFunction.append($('<br><br>'))
+                        i = i + 1
+                    })
+                } else {
+                    var errorMessage = $('<p style="color: red">')
+                    errorMessage.append("FAIL!\n" + response.error.description)
+                    $("#cooperativeGamesResult").append(errorMessage)
+                }
+            })
+        })
+
+        $("#lab5Execute").on("click", function () {
+            var characteristicFunction = {}
+            var coalitionCharacteristicFunction = $(".coalitionCharacteristicFunction")
+            for (var i = 0; i < coalitionCharacteristicFunction.length; ++i) {
+                var key = $(coalitionCharacteristicFunction[i]).attr("coalition")
+                var value = $(coalitionCharacteristicFunction[i]).val()
+                characteristicFunction[key] = value
+            }
+            var gamersCount = $("#cooperativeGamersCount").val()
+            var request = {
+                "gamersCount": gamersCount,
+                "characteristicFunction": characteristicFunction
+            }
+            sendRequest('post', '/game_theory/api/lab5/compute_game', JSON.stringify(request), function(response) {
+                var cooperativeGamesResult = $("#cooperativeGamesResult")
+                cooperativeGamesResult.html("")
+                if (response.success) {
+                    var superadditive = response.result.superadditive
+                    var superadditiveResult = $("<p>")
+                    var superadditiveResultPretext = " "
+                    var superadditiveResultCoalitions = superadditive.superadditiveCoalitions
+                    if (!superadditive.result) {
+                        superadditiveResultPretext = " НЕ "
+                        superadditiveResultCoalitions = superadditive.notSuperadditiveCoalitions
+                    }
+                    superadditiveResult.append("<br><b>Кооперативная игра"+superadditiveResultPretext+"является супераддитивной. Так как"+superadditiveResultPretext+"выполняется:<b><br><br>")
+                    superadditiveResult.append(katex.renderToString("\\forall S,T \\sube I (S \\cap T = \\varnothing): v(S \\cup T) \\ge v(S) + v(T)"))
+                    superadditiveResultCoalitions.forEach(function (coalitionPair) {
+                        var s = "\\{"+coalitionPair[0].join(",")+"\\}"
+                        var t = "\\{"+coalitionPair[1].join(",")+"\\}"
+                        var stUnion = "\\{"+coalitionPair[0].concat(coalitionPair[1]).sort().join(",")+"\\}"
+                        var vsPlusvt = Number(characteristicFunction["v("+s.replaceAll("\\", "")+")"]) + Number(characteristicFunction["v("+t.replaceAll("\\", "")+")"])
+                        superadditiveResult.append("<br>" + katex.renderToString(s+","+t+" \\sube I ("+s+" \\cap "+t+" = \\varnothing): v("+s+" \\cup "+t+")=v("+stUnion+")="+characteristicFunction["v("+stUnion.replaceAll("\\", "")+")"]+" \\ge v("+s+") + v("+t+")="+vsPlusvt))
+                    })
+
+                    var convex = response.result.convex
+                    var convexResult = $("<p>")
+                    var convexResultPretext = " "
+                    var convexResultCoalitions = convex.convexCoalitions
+                    if (!convexResult.result) {
+                        convexResultPretext = " НЕ "
+                        convexResultCoalitions = convex.notConvexCoalitions
+                    }
+                    convexResult.append("<br><b>Кооперативная игра"+convexResultPretext+"является выпуклой. Так как"+convexResultPretext+"выполняется:</b><br><br>")
+                    convexResult.append(katex.renderToString("\\forall S,T \\sube I: v(S \\cup T) + v(S \\cap T) \\ge v(S) + v(T)"))
+                    convexResultCoalitions.forEach(function (coalitionPair) {
+                        var s = "\\{"+coalitionPair[0].join(",")+"\\}"
+                        var t = "\\{"+coalitionPair[1].join(",")+"\\}"
+                        const unique = (value, index, self) => {
+                            return self.indexOf(value) === index
+                        }
+                        var stUnion = "\\{"+coalitionPair[0].concat(coalitionPair[1]).filter(unique).sort().join(",")+"\\}"
+                        var stIntersectIndices = coalitionPair[0].filter(value => coalitionPair[1].includes(value)).sort().join(",")
+                        var stIntersect = "\\{"+stIntersectIndices+"\\}"
+                        if (stIntersectIndices === "") stIntersect = "∅"
+                        var stUnionPlusstIntersect = Number(characteristicFunction["v("+stUnion.replaceAll("\\", "")+")"]) + Number(characteristicFunction["v("+stIntersect.replaceAll("\\", "")+")"])
+                        var vsPlusvt = Number(characteristicFunction["v("+s.replaceAll("\\", "")+")"]) + Number(characteristicFunction["v("+t.replaceAll("\\", "")+")"])
+                        convexResult.append("<br>" + katex.renderToString(s+","+t+" \\sube I: v("+s+" \\cup "+t+") + v("+s+" \\cap "+t+")=v("+stUnion+")+v("+stIntersect+")="+stUnionPlusstIntersect+" \\ge v("+s+") + v("+t+")="+vsPlusvt))
+                    })
+
+                    var shapleyVector = response.result.shapleyVector
+                    var shapleyVectorResult = $("<p>")
+                    shapleyVectorResult.append("<br><b>Для данной игры рациональный дележ определяется следующим вектором Шепли:<b><br><br>")
+                    var xs = Object.keys(shapleyVector).map(function (key) {
+                        return "x_" + key + "(v)"
+                    }).join(",")
+                    shapleyVectorResult.append(katex.renderToString("X(v)=("+xs+")"))
+                    shapleyVectorResult.append("<br>Компоненты вектора следующие:<br>")
+                    shapleyVectorResult.append(katex.renderToString("x_i(v)={1 \\over N!} \\sum_{\\substack{S: i \\isin S}} (|S|-1)!(N-|S|)!(v(S)-v(S \\backslash \\{i\\})), N="+gamersCount))
+                    Object.keys(shapleyVector).forEach(function (key) {
+                        shapleyVectorResult.append("<br>" + katex.renderToString("x_"+key+"(v)="+shapleyVector[key]))
+                    })
+
+                    var individualRationalization = response.result.individualRationalization
+                    var individualRationalizationResult = $("<p>")
+                    var individualRationalizationResultPretext = " "
+                    var individualRationalizationResultKeys = Object.keys(shapleyVector)
+                    if (!individualRationalization.result) {
+                        individualRationalizationResultPretext = " НЕ "
+                        individualRationalizationResultKeys = individualRationalization.badGamerIds
+                    }
+                    individualRationalizationResult.append("<b>Условие индивидуальной рационализации"+individualRationalizationResultPretext+"выполняется</b><br><br>")
+                    individualRationalizationResult.append(katex.renderToString("x_i(v) \\ge v(\\{i\\}), i \\isin I"))
+                    individualRationalizationResultKeys.forEach(function (key) {
+                        individualRationalizationResult.append("<br>" + katex.renderToString("x_"+key+"(v)="+shapleyVector[key]+" \\ge v(\\{"+key+"\\})="+characteristicFunction["v({"+key+"})"]))
+                    })
+
+                    var groupRationalization = response.result.groupRationalization
+                    var groupRationalizationResult = $("<p>")
+                    var groupRationalizationResultPretext = " "
+                    var groupRationalizationResultSign = " \\approx "
+                    if (!groupRationalization) {
+                        groupRationalizationResultPretext = " НЕ "
+                        groupRationalizationResultSign = " \\ne "
+                    }
+                    var groupRationalizationResultKeys = Object.keys(shapleyVector)
+                    var groupRationalizationSum = 0
+                    groupRationalizationResultKeys.forEach(function (key) {
+                        groupRationalizationSum = groupRationalizationSum + shapleyVector[key]
+                    })
+                    var groupRationalizationSumStr = groupRationalizationResultKeys.map(function (key) {
+                        return "x_"+key+"(v)"
+                    }).join("+")
+                    var allKeys = [...Array(Number(gamersCount)).keys()].map(function (key) {
+                        return key + 1
+                    }).join(",")
+                    groupRationalizationResult.append("<b>Условие групповой рационализации"+groupRationalizationResultPretext+"выполняется</b><br><br>")
+                    groupRationalizationResult.append(katex.renderToString("\\sum_{\\substack{i \\isin I}} x_i(v) = v(I)"))
+                    groupRationalizationResult.append("<br>"+katex.renderToString(groupRationalizationSumStr+"="+groupRationalizationSum+groupRationalizationResultSign+"v(I)="+characteristicFunction["v({"+allKeys+"})"]))
+
+                    cooperativeGamesResult.append(superadditiveResult)
+                    cooperativeGamesResult.append(convexResult)
+                    cooperativeGamesResult.append(shapleyVectorResult)
+                    cooperativeGamesResult.append(individualRationalizationResult)
+                    cooperativeGamesResult.append(groupRationalizationResult)
+                } else {
+                    var errorMessage = $('<p style="color: red">')
+                    errorMessage.append("FAIL!\n" + response.error.description)
+                    cooperativeGamesResult.append(errorMessage)
+                }
+            })
+        })
+
+        // ---------------------------------------------------------------------------------------------------------
+        // Обработка кнопок в модальном окне лабораторной работы №6
+        // ---------------------------------------------------------------------------------------------------------
+
+        $("#lab6Generate").on("click", function() {
+            var lab6TableHeadResult = $("#lab6TrustMatrixHead")
+            var lab6TableBodyResult = $("#lab6TrustMatrixBody")
+            lab6TableHeadResult.html("")
+            lab6TableBodyResult.html("")
+            var agentsCount = matrixStrategyRowsCount["lab6TrustMatrixBody"]
+            sendRequest(
+                'post', '/game_theory/api/lab6/gen_matrix',
+                JSON.stringify({
+                    "agentsCount": agentsCount
+                }), function(response) {
+                    if (response.success) {
+                        var trHead = $("<tr>")
+                        trHead.append("<td>")
+                        for (var i = 0; i < agentsCount; ++i) {
+                            trHead.append("<td>"+i+"</td>")
+                        }
+                        trHead.append("<td>"+katex.renderToString("\\sum")+"</td>")
+                        lab6TableHeadResult.append(trHead)
+
+                        var agent = 0
+                        response.result.trustMatrix.forEach(function (row) {
+                            var sum = 0.0
+                            var tr = $('<tr>')
+                            tr.append("<td>"+agent+"</td>")
+                            row.forEach(function (element) {
+                                var td = $('<td><input type="text" value="'+parseFloat(element).toFixed(3)+'"/></td>')
+                                tr.append(td)
+                                sum = sum + element
+                            })
+                            tr.append("<td>"+parseFloat(sum).toFixed(3)+"</td>")
+                            lab6TableBodyResult.append(tr)
+                            agent = agent + 1
+                        })
+                    } else {
+                        var errorMessage = $('<p style="color: red">')
+                        errorMessage.append("FAIL!\n" + response.error.description)
+                        lab6TableBodyResult.append(errorMessage)
+                    }
+                })
+        })
+
+        $("#lab6Execute").on("click", function () {
+            var firstGamerAgentsInfluenceCount = $("#firstGamerAgentsInfluenceCount").val()
+            var secondGamerAgentsInfluenceCount = $("#secondGamerAgentsInfluenceCount").val()
+            var agentsCount = matrixStrategyRowsCount["lab6TrustMatrixBody"]
+            if (Number(firstGamerAgentsInfluenceCount) + Number(secondGamerAgentsInfluenceCount) > agentsCount) {
+                var errorMessage = $('<p style="color: red">')
+                errorMessage.append("FAIL!\nАгенты первого игрока не должны пересекаться с агентами второго!")
+                informationConfrontationResult.append(errorMessage)
+            } else {
+                var epsilon = $("#convergenceMatrixEpsilon").val()
+                var agentsMinOpinionInitial = $("#agentsMinOpinionInitial").val()
+                var agentsMaxOpinionInitial = $("#agentsMaxOpinionInitial").val()
+                var agentsInfluenceMinOpinionInitial = $("#agentsInfluenceMinOpinionInitial").val()
+                var agentsInfluenceMaxOpinionInitial = $("#agentsInfluenceMaxOpinionInitial").val()
+                sendRequest('post', '/game_theory/api/lab6/compute_game', JSON.stringify({
+                    "epsilon": epsilon,
+                    "agentsMinOpinionInitial": agentsMinOpinionInitial,
+                    "agentsMaxOpinionInitial": agentsMaxOpinionInitial,
+                    "agentsInfluenceMinOpinionInitial": agentsInfluenceMinOpinionInitial,
+                    "agentsInfluenceMaxOpinionInitial": agentsInfluenceMaxOpinionInitial,
+                    "firstGamerAgentsInfluenceCount": firstGamerAgentsInfluenceCount,
+                    "secondGamerAgentsInfluenceCount": secondGamerAgentsInfluenceCount
+                }), function(response) {
+                    var informationConfrontationResult = $("#informationConfrontationResult")
+                    if (response.success) {
+                        informationConfrontationResult.html("")
+                        var table = $("<table class='table-info'>")
+                        informationConfrontationResult.append("<br><p>Матрица доверия после "+response.result.iterations+" итераций :</p><br>")
+                        response.result.computeTrustMatrix.forEach(function (row) {
+                            var tr = $("<tr>")
+                            row.forEach(function (element) {
+                                var td = $("<td>")
+                                td.append(parseFloat(element).toFixed(3))
+                                tr.append(td)
+                            })
+                            table.append(tr)
+                        })
+                        informationConfrontationResult.append(table)
+                        informationConfrontationResult.append("<br>")
+                        informationConfrontationResult.append(
+                            "<p>" +
+                            "<b>Поиск итоговых мнений агентов (без влияния)</b><br><br>" +
+                            "Матрица доверия стохастическая, о чем говорит последний столбец таблицы выше.<br>" +
+                            "Сформированный случайным образом вектор начальных мнений агентов (без влияния) в " +
+                            "диапзоне от " + agentsMinOpinionInitial + " до " + agentsMaxOpinionInitial +
+                            " следующий:<br><br>" +
+                            katex.renderToString("x(0)=("+response.result.agentsOpinionsInitial.withoutInfluence.map(function (elem) {
+                                return parseFloat(elem).toFixed(3)
+                            }).join(", ")+")") + "<br><br>" +
+                            "Произведя " + response.result.iterations + " итераций до схождения матрицы, задав" +
+                            " точность " + katex.renderToString("\\varepsilon="+epsilon) + ", получено итоговое " +
+                            "мнение агентов:<br><br>" +
+                            katex.renderToString("x("+response.result.iterations+")=("+response.result.agentsOpinionsResult.withoutInfluence.map(function (elem) {
+                                return parseFloat(elem).toFixed(3)
+                            }).join(", ")+")") + "<br><br>" +
+                            "<b>Поиск итоговых мнений агентов (с влиянием)</b><br><br>" +
+                            "Смоделирована игра с информационным влиянием. Случайным образом выбраны агенты каждого " +
+                            "игрока (они не пересекаются).<br>" +
+                            "Агенты первого игрока: " + response.result.firstGamer.influencers.join(", ") + "<br>" +
+                            "Агенты второго игрока: " + response.result.secondGamer.influencers.join(", ") + "<br>" +
+                            "Сгенерированы случайным образом управление " + katex.renderToString("u") + " для " +
+                            "агентов влияния первого игрока в диапазоне от " + agentsInfluenceMinOpinionInitial +
+                            " до " + agentsInfluenceMaxOpinionInitial + " и управление " + katex.renderToString("v") +
+                            " для агентов влияния второго игрока в диапазоне от " + parseFloat(-agentsInfluenceMaxOpinionInitial).toFixed(0) +
+                            " до " + parseFloat(-agentsInfluenceMinOpinionInitial).toFixed(0) + ".<br>" +
+                            "Сформированное начальное мнение агентов первого игрока: " + parseFloat(response.result.firstGamer.opinionInitial).toFixed(3) + "<br>" +
+                            "Сформированное начальное мнение агентов второго игрока: " + parseFloat(response.result.secondGamer.opinionInitial).toFixed(3) + "<br>" +
+                            "Сформированный вектор начальных мнений агентов с учетом информационного влияния следующий:<br><br>" +
+                            katex.renderToString("x(0)=("+response.result.agentsOpinionsInitial.withInfluence.map(function (elem) {
+                                return parseFloat(elem).toFixed(3)
+                            }).join(", ")+")") + "<br><br>" +
+                            "Результирующее мнение после " + response.result.iterations + " итераций:<br><br>" +
+                            katex.renderToString("x("+response.result.iterations+")=("+response.result.agentsOpinionsResult.withInfluence.map(function (elem) {
+                                return parseFloat(elem).toFixed(3)
+                            }).join(", ")+")") + "<br><br>" +
+                            "Выиграл " + response.result.winner + " игрок." +
+                            "</p>")
+                    } else {
+                        var errorMessage = $('<p style="color: red">')
+                        errorMessage.append("FAIL!\n" + response.error.description)
+                        informationConfrontationResult.append(errorMessage)
+                    }
+                })
+            }
+        })
+
+        // ---------------------------------------------------------------------------------------------------------
+        // Обработка кнопок в модальном окне рубежного контроля №1
+        // ---------------------------------------------------------------------------------------------------------
+
+        $("#rk1Execute").on("click", function () {
+            $("#rk1Result").html("")
+            var matrixStrategy = []
+            $("#rk1MatrixStrategyBody tr").each(function () {
+                var matrixStrategyRow = []
+                $(this).children('td').each(function (index, td) { matrixStrategyRow.push(td.firstChild.value) })
+                matrixStrategy.push(matrixStrategyRow)
+            })
+            sendRequest('post', '/game_theory/api/rk1/monotone_iteration_method', JSON.stringify(matrixStrategy), function(response) {
+                rk1Processor(response)
+            })
+        })
+
+        function rk1Processor(response) {
+            if (response.success) {
+                var solutionX = katex.renderToString("x^*=("+response.result.strategiesX.join(",")+"),")
+                var solutionY = katex.renderToString("y^*=("+response.result.strategiesY.join(",")+"),")
+                var gameCost = katex.renderToString("v="+response.result.gameCost+".")
+                $("#rk1Result").append(solutionX)
+                $("#rk1Result").append('<br><br>')
+                $("#rk1Result").append(solutionY)
+                $("#rk1Result").append('<br><br>')
+                $("#rk1Result").append(gameCost)
+            } else {
+                var errorMessage = $('<p style="color: red">')
+                errorMessage.append("FAIL!\n" + response.error.description)
+                $("#rk1Result").append(errorMessage)
+            }
+        }
+
 
         // ---------------------------------------------------------------------------------------------------------
         // Вспомогательные обработчики
