@@ -145,6 +145,10 @@
         Рубежный контроль №2
     </button>
     <hr>
+    <button id="rk2Btn" type="button" class="customButton" >
+        Рубежный контроль №3
+    </button>
+    <hr>
 
     <!--Lab1 modal dialog-->
     <div class="modal fade" id="lab1InverseMatrixAndBrownRobinsonMethodsDialog" role="dialog" aria-hidden="true">
@@ -492,7 +496,7 @@
             </div>
         </div>
     </div>
-    <!--RK2 modal dialog-->
+    <!--RK3 modal dialog-->
     <div class="modal fade" id="rk1Dialog" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-xlg" style="width: 50%">
             <div class="modal-content">
@@ -525,6 +529,42 @@
                     </label>
                     <h4><b>Монотонный итерационный метод</b></h4>
                     <div id="rk1Result"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="rk2Dialog" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-xlg" style="width: 50%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h1 class="modal-title">Рубежный контроль №3</h1>
+                </div>
+                <div class="modal-body">
+                    <h3>Ход работы</h3>
+                    <label>
+                        Количество точек ищущего :
+                        <input id="pointsCount" type="text" class="form-control">
+                        Размер ребра куба :
+                        <input id="cubeDimensions" type="text" class="form-control">
+                        Эпсилон-окрестность обнаружения :
+                        <input id="epsilon" type="text" class="form-control">
+                        <button id="rk2Execute" class="btn btn-success">
+                            Смоделировать игру
+                        </button>
+                        <button id="rk2generateGame" class="btn btn-success">
+                            Показать точки прячущегося
+                        </button>
+                    </label>
+                    <br>
+                    <br>
+                    <canvas id="canvas"></canvas>
+                    <br>
+                    <br>
+                    <div id="rk2Result"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
@@ -1362,7 +1402,7 @@
         })
 
         // ---------------------------------------------------------------------------------------------------------
-        // Обработка кнопок в модальном окне рубежного контроля №1
+        // Обработка кнопок в модальном окне рубежного контроля №2
         // ---------------------------------------------------------------------------------------------------------
 
         $("#rk1Execute").on("click", function () {
@@ -1394,6 +1434,44 @@
                 $("#rk1Result").append(errorMessage)
             }
         }
+
+
+        // ---------------------------------------------------------------------------------------------------------
+        // Обработка кнопок в модальном окне рубежного контроля №3
+        // ---------------------------------------------------------------------------------------------------------
+
+        var secondGamerPoints = []
+        var epsilon
+
+        $('#rk2Execute').on("click", function () {
+            var req = {
+                "pointsCount": $("#pointsCount").val(),
+                "cubeDimensions": $("#cubeDimensions").val(),
+                "epsilon": $("#epsilon").val()
+            }
+            sendRequest('post', '/game_theory/api/rk2/search_game', JSON.stringify(req), function (response) {
+                if (response.success) {
+                    epsilon = response.result.epsilon
+                    var firstGamerPoints = response.result.firstGamerPoints
+                    secondGamerPoints = response.result.secondGamerPoints
+                    var cubeDimensions = response.result.cubeDimensions
+                    threeInit()
+                    drawCubeWithSpheres(firstGamerPoints, cubeDimensions , epsilon)
+                    $("#rk2Result").html("")
+                    $("#rk2Result").append('<hr><h1>Цена игры после ' + response.result.gamesCount + ' игр : ' +
+                        response.result.gameCost + '</h1>' + '<p>Голубые точки - точки первого игрока</p>' +
+                        '<p>Красные точки - точки второго игрока</p>')
+                } else {
+                    var errorMessage = $('<p style="color: red">')
+                    errorMessage.append("FAIL!\n" + response.error.description)
+                    $("#rk2Result").append(errorMessage)
+                }
+            })
+        })
+
+        $("#rk2generateGame").on("click", function () {
+            animateGame(secondGamerPoints, epsilon)
+        })
 
 
         // ---------------------------------------------------------------------------------------------------------
@@ -1548,11 +1626,16 @@
             })
 
             let cubeMaterial = new THREE.MeshBasicMaterial({
-                color: 0xff0000,
-                wireframe: true
+                color: 0x7fffb7,
+                wireframe: false,
+                opacity: 0.5,
+                transparent: true
             })
-            let cubeGeometry = new THREE.BoxGeometry(cubeDimensions, cubeDimensions, cubeDimensions)
+            //let cubeGeometry = new THREE.BoxGeometry(cubeDimensions, cubeDimensions, cubeDimensions)
+            let cubeGeometry = new THREE.SphereGeometry( cubeDimensions / 2, 500, 500)
+            //let sphereGeometry = new THREE.SphereGeometry(epsilon, cubeDimensions, cubeDimensions)
             let cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
+            //let cube = new THREE.Mesh(sphereGeometry, cubeMaterial)
             cube.receiveShadow = true
             cube.position.x = cubeDimensions / 2
             cube.position.y = cubeDimensions / 2
@@ -1580,20 +1663,39 @@
             var height = 2000
 
             var svg = d3.select(treeContainer).append("svg").attr("width", width).attr("height", height)
-            var g = svg.append("g").attr('transform','translate('+ margin.left +','+ margin.right +')')
+            var svgGtag = svg.append("g").attr('transform','translate('+ margin.left +','+ margin.right +')')
 
             var tree = d3.tree().size([1800,1800])
 
-            var link = g.selectAll(".link")
+            var pathIdsToSetText = []
+            var linkNumber = 0
+            var link = svgGtag.selectAll(".link")
                 .data(tree(root).links()).enter()
                 .append("path")
+                .attr("id", function(d) {
+                    linkNumber = linkNumber + 1
+                    var pathId = "path-" + linkNumber
+                    if (d.source.data.isNatureRoot) pathIdsToSetText.push(pathId)
+                    return pathId
+                })
                 .attr("class", "link")
                 .attr("d", d3.linkHorizontal().x(function(d) { return d.x; }).y(function(d) { return d.y; }))
                 .style("stroke", function(d) {
                     if (d.source.data.best && d.target.data.best) return d.target.data.color
                 })
 
-            var node = g.selectAll(".node")
+            pathIdsToSetText.forEach(function (pathId) {
+                var text = svgGtag.append("text")
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "35px")
+
+                text.append("textPath")
+                    .attr("xlink:href", "#"+pathId)
+                    .attr("startOffset","50%")
+                    .text("0.5")
+            })
+
+            var node = svgGtag.selectAll(".node")
                 .data(root.descendants())
                 .enter().append("g")
                 .attr("class", function(d) { return "node" + (d.children ? " node--internal" : " node--leaf") })

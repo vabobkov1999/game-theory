@@ -30,7 +30,11 @@ object MainApi extends HttpRouteUtils {
                     } ~
                       pathPrefix("lab6") {
                     InformationConfrontation.getRoute
+                    } ~
+                      pathPrefix("rk2") {
+                    SearchGamesApi.getRoute
                     }
+
                 }
             } ~
             get("js" / Segments) { sourceNames =>
