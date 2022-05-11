@@ -141,12 +141,14 @@
         Информационное противоборство
     </button>
     <hr>
+    <h3>Рубежный контроль №2</h3>
     <button id="rk1Btn" type="button" class="customButton" >
-        Рубежный контроль №2
+        Итеративные методы решения матричных игр
     </button>
     <hr>
+    <h3>Рубежный контроль №3</h3>
     <button id="rk2Btn" type="button" class="customButton" >
-        Рубежный контроль №3
+        Бесконечные игры поиска на произвольной фигуре
     </button>
     <hr>
 
@@ -1631,11 +1633,8 @@
                 opacity: 0.5,
                 transparent: true
             })
-            //let cubeGeometry = new THREE.BoxGeometry(cubeDimensions, cubeDimensions, cubeDimensions)
             let cubeGeometry = new THREE.SphereGeometry( cubeDimensions / 2, 500, 500)
-            //let sphereGeometry = new THREE.SphereGeometry(epsilon, cubeDimensions, cubeDimensions)
             let cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
-            //let cube = new THREE.Mesh(sphereGeometry, cubeMaterial)
             cube.receiveShadow = true
             cube.position.x = cubeDimensions / 2
             cube.position.y = cubeDimensions / 2

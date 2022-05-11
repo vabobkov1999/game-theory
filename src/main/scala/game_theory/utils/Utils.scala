@@ -717,20 +717,28 @@ object Utils {
 
     }
 
+    private def generateSecondGamerStrategyOnCube(pointsCount: Int, cubeDimensions: Double): List[Point] = {
+        val radius = cubeDimensions / 2.0
+        val pointsIndices = (0 until pointsCount).toList
+        val points = pointsIndices.map { pointIndex =>
+            val theta = (2.0 * math.Pi * pointIndex) / ((1 + math.pow(5.0, 0.5)) / 2.0)
+            val phi = math.acos(1.0 - (2.0 * pointIndex / pointsCount))
+
+            val x = radius * Math.cos(theta) * Math.sin(phi) + radius
+            val y = radius * Math.sin(theta) * Math.sin(phi) + radius
+            val z = radius * Math.cos(phi) + radius
+
+            Point(Utils.roundWithScale(x, 10), Utils.roundWithScale(y, 10), Utils.roundWithScale(z, 10))
+        }
+        points
+    }
+
     def searchGame(pointsCount: Int, cubeDimensions: Double, epsilon: Double) = {
         val gamesCount = 120
-        val gamesCountForOnePlane = gamesCount / 6
-        val firstGamerPoints = generateFirstGamerStrategyOnCube(pointsCount, cubeDimensions , epsilon)
-        val secondGamerPointsWithWins = {
-            (0 until gamesCountForOnePlane).toList.map(_ => Point(0.0, cubeDimensions  * scala.util.Random.nextDouble(), cubeDimensions * scala.util.Random.nextDouble())) ++
-              (0 until gamesCountForOnePlane).toList.map(_ => Point(cubeDimensions  * scala.util.Random.nextDouble(), 0.0, cubeDimensions * scala.util.Random.nextDouble())) ++
-              (0 until gamesCountForOnePlane).toList.map(_ => Point(cubeDimensions  * scala.util.Random.nextDouble(), cubeDimensions * scala.util.Random.nextDouble(), 0.0)) ++
-              (0 until gamesCountForOnePlane).toList.map(_ => Point(cubeDimensions, cubeDimensions * scala.util.Random.nextDouble(), cubeDimensions * scala.util.Random.nextDouble())) ++
-              (0 until gamesCountForOnePlane).toList.map(_ => Point(cubeDimensions * scala.util.Random.nextDouble(), cubeDimensions, cubeDimensions * scala.util.Random.nextDouble())) ++
-              (0 until gamesCountForOnePlane).toList.map(_ => Point(cubeDimensions * scala.util.Random.nextDouble(), cubeDimensions * scala.util.Random.nextDouble(), cubeDimensions))
-        }.map { secondPoint =>
-            if (secondPoint.notIntersectWith(firstGamerPoints, epsilon)) (secondPoint, true)
-            else (secondPoint, false)
+        val firstGamerPoints = generateFirstGamerStrategyOnCube(pointsCount, cubeDimensions, epsilon)
+        val secondGamerPointsWithWins = generateSecondGamerStrategyOnCube(gamesCount, cubeDimensions) map {
+            case secondPoint if secondPoint.notIntersectWith(firstGamerPoints, epsilon) => (secondPoint, true)
+            case secondPoint => (secondPoint, false)
         }
         val gameCost = Utils.roundWithScale(
             secondGamerPointsWithWins.count(_._2 == false).toDouble / secondGamerPointsWithWins.length,
